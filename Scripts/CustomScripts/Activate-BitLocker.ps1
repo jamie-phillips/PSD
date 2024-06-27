@@ -27,21 +27,15 @@ function Check-BitLockerPrerequisites {
     return $true
 }
 
-# Enable BitLocker with specified configuration
-function Enable-BitLocker {
+if (Check-BitLockerPrerequisites) {
     $Volume = Get-BitLockerVolume -MountPoint "C:"
     
     if ($Volume.ProtectionStatus -eq "Off") {
-        Enable-BitLocker -MountPoint "C:" -EncryptionMethod Aes256 -UsedSpaceOnly -TpmProtector
-        Write-Host "BitLocker has been enabled on drive C: with AES-256 and used space only encryption."
+        Add-BitLockerKeyProtector -MountPoint "C:" -TpmProtector
+        Enable-BitLocker -MountPoint "C:" -EncryptionMethod Aes256 -UsedSpaceOnly -
     } else {
         Write-Host "BitLocker is already enabled on drive C:."
     }
-}
-
-# Main script
-if (Check-BitLockerPrerequisites) {
-    Enable-BitLocker
 } else {
     Write-Host "BitLocker prerequisites not met. Please check the requirements."
 }
