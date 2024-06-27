@@ -27,23 +27,13 @@ function Check-BitLockerPrerequisites {
     return $true
 }
 
-# Enable BitLocker with specified configuration and backup key to a text file
+# Enable BitLocker with specified configuration
 function Enable-BitLocker {
     $Volume = Get-BitLockerVolume -MountPoint "C:"
-
+    
     if ($Volume.ProtectionStatus -eq "Off") {
-        $KeyProtector = Add-BitLockerKeyProtector -MountPoint "C:" -TpmProtector -EncryptionMethod Aes256 -UsedSpaceOnly
-        Enable-BitLocker -MountPoint "C:"
-
-        $RecoveryPassword = (Get-BitLockerVolume -MountPoint "C:").KeyProtector |
-                            Where-Object { $_.KeyProtectorType -eq "RecoveryPassword" } |
-                            Select-Object -ExpandProperty RecoveryPassword
-
-        $RecoveryKeyFilePath = "C:\BitLockerRecoveryKey.txt"
-        $RecoveryPassword | Out-File -FilePath $RecoveryKeyFilePath
-
+        Enable-BitLocker -MountPoint "C:" -EncryptionMethod Aes256 -UsedSpaceOnly -TpmProtector
         Write-Host "BitLocker has been enabled on drive C: with AES-256 and used space only encryption."
-        Write-Host "Recovery key has been saved to $RecoveryKeyFilePath."
     } else {
         Write-Host "BitLocker is already enabled on drive C:."
     }
